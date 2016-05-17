@@ -2,6 +2,9 @@ Revision history for MooseX-AttributeShortcuts
 
 {{$NEXT}}
 
+	* lazy => 1 is now a shortcut for builder => "_build_name" if no builder
+	  or default is set.
+
 0.028     2015-04-07 20:45:00 PDT-0700
 	* 0.028.  *le sigh*
 

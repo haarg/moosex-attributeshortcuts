@@ -88,6 +88,9 @@ use Moose::Util::TypeConstraints;
             $class->_mxas_is_rwp($name, $options, $_has, $_opt, $_ref);
             $class->_mxas_is_lazy($name, $options, $_has, $_opt, $_ref);
 
+            # handle: lazy => 1
+            $class->_mxas_lazy($name, $options, $_has, $_opt, $_ref);
+
             # handle: builder => 1, builder => sub { ... }
             $class->_mxas_builder($name, $options, $_has, $_opt, $_ref);
 
@@ -169,6 +172,19 @@ use Moose::Util::TypeConstraints;
 
             $options->{is}       = 'ro';
             $options->{lazy}     = 1;
+            $options->{builder}  = 1
+                unless $_has->('builder') || $_has->('default');
+
+            return;
+        };
+
+        # handle: lazy => 1
+        method _mxas_lazy => sub {
+            my ($class, $name, $options, $_has, $_opt, $_ref) = @_;
+
+            return
+                unless $_opt->('lazy');
+
             $options->{builder}  = 1
                 unless $_has->('builder') || $_has->('default');
 
@@ -487,6 +503,9 @@ __END__
     # works as you'd expect for "private": predicate => '_has_bar'
     has _bar => (is => 'ro', predicate => 1);
 
+    # same as: is => 'rw', lazy => 1, builder => '_build_bar'
+    has bar => (is => 'rw', lazy => 1);
+
     # extending? Use the "Shortcuts" trait alias
     extends 'Some::OtherClass';
     has '+bar' => (traits => [Shortcuts], builder => 1, ...);
@@ -588,6 +607,13 @@ set:
 
 That is, if you specify C<is =E<gt> 'lazy'> and also provide a C<default>, then
 we won't try to set a builder, as well.
+
+=head2 lazy => 1
+
+Specifying C<lazy =E<gt> 1> will also cause the following options to be set,
+unless a builder or default is specified.
+
+    builder => "_build_$name"
 
 =head2 builder => 1
 

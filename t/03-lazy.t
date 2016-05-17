@@ -15,6 +15,9 @@ use warnings;
     # have both a builder and a default!" violation.  So, the test here really
     # is "does it not die?"
     has baz => (is => 'lazy', default => 0);
+
+    has buzz => (is => 'ro', lazy => 1);
+    sub _build_buzz { 1 }
 }
 
 use Test::More;
@@ -38,11 +41,20 @@ my %bar_accessors = (
     builder  => undef,
 );
 
+my %buzz_accessors = (
+    reader   => 'buzz',
+    init_arg => 'buzz',
+    lazy     => 1,
+    default  => undef,
+    builder  => '_build_buzz',
+);
+
 with_immutable {
 
     test_class_sanity_checks('TestClass');
     check_attribute('TestClass', foo => %foo_accessors);
     check_attribute('TestClass', bar => %bar_accessors);
+    check_attribute('TestClass', buzz => %buzz_accessors);
 
 } 'TestClass';
 
